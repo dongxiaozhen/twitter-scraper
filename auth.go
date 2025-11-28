@@ -171,11 +171,13 @@ func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 func (s *Scraper) IsLoggedIn() bool {
 	// 只检查必要的 cookie
 	cookies := s.client.Jar.Cookies(mustParseURL("https://x.com"))
+	fmt.Println("b-cook:", len(cookies))
 
 	hasCT0 := false
 	// hasAuthToken := false
 
 	for _, cookie := range cookies {
+		fmt.Println("b-cook:", cookie.Name, " value: ", cookie.Value)
 		if cookie.Name == "ct0" && cookie.Value != "" {
 			hasCT0 = true
 			break
