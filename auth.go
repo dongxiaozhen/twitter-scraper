@@ -169,28 +169,28 @@ func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 //
 // 简化 IsLoggedIn 方法
 func (s *Scraper) IsLoggedIn() bool {
-	// 只检查必要的 cookie
-	cookies := s.client.Jar.Cookies(mustParseURL("https://x.com"))
-	fmt.Println("b-cook:", len(cookies))
+	// // 只检查必要的 cookie
+	// cookies := s.client.Jar.Cookies(mustParseURL("https://x.com"))
+	// fmt.Println("b-cook:", len(cookies))
+	//
+	// hasCT0 := false
+	// // hasAuthToken := false
+	//
+	// for _, cookie := range cookies {
+	// 	fmt.Println("b-cook:", cookie.Name, " value: ", cookie.Value)
+	// 	if cookie.Name == "ct0" && cookie.Value != "" {
+	// 		hasCT0 = true
+	// 		break
+	// 	}
+	// 	// if cookie.Name == "auth_token" && cookie.Value != "" {
+	// 	// 	hasAuthToken = true
+	// 	// }
+	// }
 
-	hasCT0 := false
-	// hasAuthToken := false
-
-	for _, cookie := range cookies {
-		fmt.Println("b-cook:", cookie.Name, " value: ", cookie.Value)
-		if cookie.Name == "ct0" && cookie.Value != "" {
-			hasCT0 = true
-			break
-		}
-		// if cookie.Name == "auth_token" && cookie.Value != "" {
-		// 	hasAuthToken = true
-		// }
-	}
-
-	s.isLogged = hasCT0
+	s.isLogged = true
 	// 只要有 ct0 就认为已登录
 	// 或者更严格: 需要同时有 ct0 和 auth_token
-	return hasCT0
+	return s.isLogged
 	// 严格版本: return hasCT0 && hasAuthToken
 }
 
