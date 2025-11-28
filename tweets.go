@@ -157,8 +157,18 @@ func (s *Scraper) FetchTweetsByUserID(userID string, maxTweetsNbr int, cursor st
 	query.Set("features", mapToJSONString(features))
 	req.URL.RawQuery = query.Encode()
 
+	curBearerToken := s.bearerToken
+	if curBearerToken != bearerToken2 {
+		s.setBearerToken(bearerToken2)
+	}
+
 	var timeline timelineV2
 	err = s.RequestAPI(req, &timeline)
+
+	if curBearerToken != bearerToken2 {
+		s.setBearerToken(curBearerToken)
+	}
+
 	if err != nil {
 		return nil, "", err
 	}

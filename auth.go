@@ -8,14 +8,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
-
-	"math/rand"
 )
 
 const (
@@ -149,22 +148,54 @@ func (s *Scraper) getFlowToken(data map[string]interface{}) (string, error) {
 }
 
 // IsLoggedIn check if scraper logged in
+//
+//	func (s *Scraper) IsLoggedIn() bool {
+//		s.isLogged = true
+//		s.setBearerToken(bearerToken1)
+//		req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/account/verify_credentials.json", nil)
+//		if err != nil {
+//			return false
+//		}
+//		var verify verifyCredentials
+//		err = s.RequestAPI(req, &verify)
+//		if err != nil || verify.Errors != nil {
+//			s.isLogged = false
+//			s.setBearerToken(bearerToken)
+//		} else {
+//			s.isLogged = true
+//		}
+//		return s.isLogged
+//	}
+//
+// 简化 IsLoggedIn 方法
 func (s *Scraper) IsLoggedIn() bool {
-	s.isLogged = true
-	s.setBearerToken(bearerToken1)
-	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/account/verify_credentials.json", nil)
-	if err != nil {
-		return false
+	// 只检查必要的 cookie
+	cookies := s.client.Jar.Cookies(mustParseURL("https://x.com"))
+
+	hasCT0 := false
+	// hasAuthToken := false
+
+	for _, cookie := range cookies {
+		if cookie.Name == "ct0" && cookie.Value != "" {
+			hasCT0 = true
+			break
+		}
+		// if cookie.Name == "auth_token" && cookie.Value != "" {
+		// 	hasAuthToken = true
+		// }
 	}
-	var verify verifyCredentials
-	err = s.RequestAPI(req, &verify)
-	if err != nil || verify.Errors != nil {
-		s.isLogged = false
-		s.setBearerToken(bearerToken)
-	} else {
-		s.isLogged = true
-	}
-	return s.isLogged
+
+	s.isLogged = hasCT0
+	// 只要有 ct0 就认为已登录
+	// 或者更严格: 需要同时有 ct0 和 auth_token
+	return hasCT0
+	// 严格版本: return hasCT0 && hasAuthToken
+}
+
+// 辅助函数
+func mustParseURL(rawURL string) *url.URL {
+	u, _ := url.Parse(rawURL)
+	return u
 }
 
 // randomDelay introduces a random delay between 1 and 3 seconds
